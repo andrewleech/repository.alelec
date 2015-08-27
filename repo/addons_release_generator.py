@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # *
+# *  Copyright (C) 2014-2015 Andrew Leech
 # *  Copyright (C) 2012-2013 Garrett Brown
 # *  Copyright (C) 2010      j48antialias
 # *
@@ -104,7 +105,9 @@ class Generator:
         and a new addons.xml.md5 hash file. Must be run from the root of
         the checked-out repo. Only handles single depth folder structure.
     """
-    def __init__( self ):
+    def __init__( self, repo_folder=None ):
+        if repo_folder is None:
+            self._repo_folder = 'repository'
         # generate files
         self._generate_addons_file()
         self._generate_md5_file()
@@ -124,42 +127,43 @@ class Generator:
                 if ( not os.path.isdir( addon ) or addon == ".svn" or addon == ".git" ): continue
                 # create path
                 _path = os.path.join( addon, "addon.xml" )
-                # split lines for stripping
-                xml_lines = open( _path, "r" , encoding="UTF-8").read().splitlines()
-                # new addon
-                addon_xml = ""
-                # loop thru cleaning each line
-                version = None
-                for line in xml_lines:
-                    # skip encoding format line
-                    if ( line.find( "<?xml" ) >= 0 ): continue
-                    # add line
-                    if sys.version < '3':
-                        addon_xml += unicode( line.rstrip() + "\n", "UTF-8" )
+                if os.path.exists(_path):
+                    # split lines for stripping
+                    xml_lines = open( _path, "r" , encoding="UTF-8").read().splitlines()
+                    # new addon
+                    addon_xml = ""
+                    # loop thru cleaning each line
+                    version = None
+                    for line in xml_lines:
+                        # skip encoding format line
+                        if ( line.find( "<?xml" ) >= 0 ): continue
+                        # add line
+                        if sys.version < '3':
+                            addon_xml += unicode( line.rstrip() + "\n", "UTF-8" )
+                        else:
+                            addon_xml += line.rstrip() + "\n"
+                        # Find version
+                        xml = ET.parse(_path).getroot()
+                        version = xml.attrib['version']
+                    # we succeeded so add to our final addons.xml text
+                    addons_xml += addon_xml.rstrip() + "\n\n"
+
+                    # report progress
+                    status = "* %s-%s"%(addon, version)
+                    print(status + " "*max(0,60-len(status)), end="")
+
+                    # create zip release
+                    zipfilename = "%s-%s.zip"%(addon, version)
+                    if not os.path.exists(os.path.join(self._repo_folder,addon,zipfilename)):
+                        print(": Creating zip release")
+                        for oldzip in glob(os.path.join(self._repo_folder,addon,"%s-*.zip"%(addon))):
+                            os.unlink(oldzip)
+                        zipdir(addon, zipfilename)
+                        if not os.path.exists(os.path.join(self._repo_folder,addon)):
+                            os.makedirs(os.path.join(self._repo_folder,addon))
+                        os.rename(zipfilename, os.path.join(self._repo_folder,addon, zipfilename))
                     else:
-                        addon_xml += line.rstrip() + "\n"
-                    # Find version
-                    xml = ET.parse(_path).getroot()
-                    version = xml.attrib['version']
-                # we succeeded so add to our final addons.xml text
-                addons_xml += addon_xml.rstrip() + "\n\n"
-
-                # report progress
-                status = "* %s-%s"%(addon, version)
-                print(status + " "*max(0,60-len(status)), end="")
-
-                # create zip release
-                zipfilename = "%s-%s.zip"%(addon, version)
-                if not os.path.exists(os.path.join('zip',addon,zipfilename)):
-                    print(": Creating zip release")
-                    for oldzip in glob(os.path.join('zip',addon,"%s-*.zip"%(addon))):
-                        os.unlink(oldzip)
-                    zipdir(addon, zipfilename)
-                    if not os.path.exists(os.path.join('zip',addon)):
-                        os.makedirs(os.path.join('zip',addon))
-                    os.rename(zipfilename, os.path.join('zip',addon, zipfilename))
-                else:
-                    print(": Up-to-date")
+                        print(": Up-to-date")
 
             except Exception as e:
                 # missing or poorly formatted addon.xml
@@ -167,7 +171,9 @@ class Generator:
         # clean and add closing tag
         addons_xml = addons_xml.strip() + u("\n</addons>\n")
         # save file
-        self._save_file( addons_xml.encode( "UTF-8" ), file="addons.xml" )
+        if not os.path.exists(self._repo_folder):
+            os.makedirs(self._repo_folder)
+        self._save_file( addons_xml.encode( "UTF-8" ), file=os.path.join(self._repo_folder,"addons.xml") )
             
         
  
@@ -175,14 +181,14 @@ class Generator:
         # create a new md5 hash
         try:
             import md5
-            m = md5.new( open( "addons.xml", "r" ).read() ).hexdigest()
+            m = md5.new( open( os.path.join(self._repo_folder,"addons.xml"), "r" ).read() ).hexdigest()
         except ImportError:
             import hashlib
-            m = hashlib.md5( open( "addons.xml", "r", encoding="UTF-8" ).read().encode( "UTF-8" ) ).hexdigest()
+            m = hashlib.md5( open( os.path.join(self._repo_folder,"addons.xml"), "r", encoding="UTF-8" ).read().encode( "UTF-8" ) ).hexdigest()
  
         # save file
         try:
-            self._save_file( m.encode( "UTF-8" ), file="addons.xml.md5" )
+            self._save_file( m.encode( "UTF-8" ), file=os.path.join(self._repo_folder,"addons.xml.md5") )
         except Exception as e:
             # oops
             print("An error occurred creating addons.xml.md5 file!\n%s" % e)
