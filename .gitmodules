@@ -1,0 +1,39 @@
+[submodule "repo/plugin.video.sbsondemand"]
+	path = repo/plugin.video.sbsondemand
+	url = ssh://git@gitlab.alelec.net:corona/plugin.video.sbsondemand.git
+[submodule "repo/script.module.pyopenssl"]
+	path = repo/script.module.pyopenssl
+	url = git@github.com:andrewleech/script.module.pyopenssl.git
+[submodule "repo/script.module.requests"]
+	path = repo/script.module.requests
+	url = https://github.com/beenje/script.module.requests.git
+[submodule "repo/skin.corona"]
+	path = repo/skin.corona
+	url = ssh://git@gitlab.alelec.net:corona/skin.corona.git
+[submodule "repo/plugin.video.netflixbmc"]
+	path = repo/plugin.video.netflixbmc
+	url = git@github.com:andrewleech/plugin.video.netflixbmc.git
+[submodule "repo/plugin.program.chrome.launcher"]
+	path = repo/plugin.program.chrome.launcher
+	url = git@github.com:andrewleech/plugin.program.chrome.launcher.git
+[submodule "beta-repo/plugin.video.sbsondemand"]
+	path = beta-repo/plugin.video.sbsondemand
+	url = ssh://git@gitlab.alelec.net:corona/plugin.video.sbsondemand.git
+[submodule "beta-repo/script.module.requests"]
+	path = beta-repo/script.module.requests
+	url = https://github.com/beenje/script.module.requests.git
+[submodule "beta-repo/skin.corona"]
+	path = beta-repo/skin.corona
+	url = ssh://git@gitlab.alelec.net:corona/skin.corona.git
+[submodule "beta-repo/plugin.video.netflixbmc"]
+	path = beta-repo/plugin.video.netflixbmc
+	url = git@github.com:andrewleech/plugin.video.netflixbmc.git
+[submodule "beta-repo/plugin.program.chrome.launcher"]
+	path = beta-repo/plugin.program.chrome.launcher
+	url = git@github.com:andrewleech/plugin.program.chrome.launcher.git
+[submodule "repo/repository.alelec"]
+	path = repo/repository.alelec
+	url = git@gitlab.alelec.net:corona/repository.alelec.git
+[submodule "beta-repo/repository.alelec.beta"]
+	path = beta-repo/repository.alelec.beta
+	url = git@gitlab.alelec.net:corona/repository.alelec.beta.git
