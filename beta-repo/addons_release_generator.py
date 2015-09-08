@@ -1,1 +1,0 @@
-../repo/addons_release_generator.py
